@@ -1,4 +1,3 @@
-const SwaggerParser = require("@apidevtools/swagger-parser");
 const Hosts = require("../models/models.hosts");
 const Endpoints = require("../models/models.endpoints");
 const seraDNS = require("../models/models.dns");
