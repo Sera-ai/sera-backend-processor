@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend_processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend_processor
+  template:
+    metadata:
+      labels:
+        app: backend_processor
+    spec:
+      volumes:
+        - name: node-modules
+          hostPath:
+            path: /workspace/node_modules
+      containers:
+      - name: backend_processor
+        image: backend_processor:latest
+        ports:
+        - containerPort: 12060
+        volumeMounts:
+        - name: node-modules
+          mountPath: /workspace/be_Processor/node_modules
+        - name: models
+          mountPath: /workspace/be_Processor/src/models
