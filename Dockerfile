@@ -14,6 +14,3 @@ COPY . .
 
 # Expose the port the app runs on
 EXPOSE 12060
-
-# Command to run the application
-CMD ["npm", "start"]
