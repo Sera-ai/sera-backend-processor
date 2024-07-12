@@ -9,7 +9,7 @@ async function fetchDNSHostAndEndpointDetails(urlData) {
   host = await Hosts.findOne({ hostname: hostname }).populate(["oas_spec"]);
 
   if (!host) {
-    console.log(host)
+    console.log(hostname)
     return {
       success: false,
       error: "Host does not exist",

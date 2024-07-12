@@ -96,9 +96,18 @@ async function routes(fastify, options) {
 
         const seraHostData = async () => {
 
+            function generateRandomString(length = 12) {
+                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+                let result = "";
+                for (let i = 0; i < length; i++) {
+                  const randomIndex = Math.floor(Math.random() * chars.length);
+                  result += chars[randomIndex];
+                }
+                return result;
+              }
+
             const seraHost = await fetchDNSHostAndEndpointDetails(urlData);
             if (!seraHost.success && seraHost.error === "Host does not exist") {
-
 
                 const subdo = `${clean_hostname.split(".")[0]}-${generateRandomString(6)}`;
 
@@ -111,6 +120,7 @@ async function routes(fastify, options) {
                     },
                 });
 
+
                 const oas = new sera_oas({
                     openapi: "3.0.1",
                     info: {
@@ -120,8 +130,10 @@ async function routes(fastify, options) {
                     servers: [{ url: clean_hostname }],
                     paths: {},
                 });
+
                 const dns_res = (await dns.save()).toObject();
                 const oas_res = (await oas.save()).toObject();
+
 
                 const host = new sera_host({
                     oas_spec: oas_res._id,
@@ -147,7 +159,7 @@ async function routes(fastify, options) {
 
             } else {
                 if (!seraHost.success) {
-                    console.log(seraHost.error)
+                    console.log("seraHost Error",seraHost.error)
                     return false
                 } else {
                     return seraHost;
@@ -155,10 +167,9 @@ async function routes(fastify, options) {
             }
         };
 
-        console.log(method)
-
 
         const seraHost = await seraHostData();
+
 
         if (!seraHost) {
             return reply.send({
@@ -166,6 +177,7 @@ async function routes(fastify, options) {
                 message: "Something went wrong",
             });
         }
+
 
         const learnRes = await learnOas({ seraHost, urlData, response: request.body.response, req: request.body.request });
         reply.send(learnRes);
