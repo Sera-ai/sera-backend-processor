@@ -1,15 +1,37 @@
 const fastifyPlugin = require('fastify-plugin');
-
-const tx_Log = require("../models/models.tx_logs");
-const sera_dns = require("../models/models.dns");
-const sera_host = require("../models/models.hosts");
-const sera_oas = require("../models/models.oas");
-const sera_settings = require("../models/models.sera_settings");
-
+const fs = require('fs');
+const vm = require('vm')
+const path = require('path');
+const https = require('https');
+const axios = require('axios');
 
 async function routes(fastify, options) {
-    fastify.post("/", async (request, reply) => {
-        reply.send("ok");
+    fastify.post("/:builderId/:eventId", async (request, reply) => {
+        try {
+            const storedScript = fs.readFileSync(path.join(__dirname, `../event-scripts/${request.params.builderId}.js`), 'utf8');
+
+            if (storedScript) {
+                const script = new vm.Script(`
+                    ${storedScript}
+                    result = event_${request.params.eventId}(); // Call the function and store the result
+                `);
+
+                const context = new vm.createContext({
+                    axios: axios,
+                    https: https,
+                });
+
+                const result = await script.runInContext(context);
+                reply.send(result);
+            }else{
+                console.log("No stored script")
+                reply.send("no")
+            }
+
+
+        } catch (e) {
+            reply.send(e);
+        }
     });
 }
 
