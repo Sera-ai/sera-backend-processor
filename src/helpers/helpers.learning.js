@@ -128,6 +128,20 @@ const learnOas = async ({ seraHost, urlData, response, req }) => {
     });
   }
 
+  // Add query parameters, if present
+  if (req?.headers && Object.keys(req?.headers).length) {
+    Object.keys(req.headers).forEach((key) => {
+      parameters.push({
+        name: key,
+        in: "header",
+        required: false, // Adjust based on actual requirement
+        schema: {
+          type: getType(req.headers[key]),
+        },
+      });
+    });
+  }
+
   // Add path parameters, if present
   if (req?.params && Object.keys(req?.params).length) {
     Object.keys(req.params).forEach((key) => {
@@ -147,6 +161,7 @@ const learnOas = async ({ seraHost, urlData, response, req }) => {
     response ? generateSchemaFromData(response.data) : null;
 
   let responseHeaders = response ? formatHeadersToOAS(response.headers) : null
+  console.log(req)
   let requestBodySchema =
     req.body && Object.keys(req.body).length !== 0
       ? generateSchemaFromData(req.body)
