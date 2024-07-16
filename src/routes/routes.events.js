@@ -22,6 +22,8 @@ async function routes(fastify, options) {
                 });
 
                 const result = await script.runInContext(context);
+                console.log(result)
+
                 reply.send(result);
             }else{
                 console.log("No stored script")
