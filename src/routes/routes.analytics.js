@@ -69,7 +69,6 @@ async function routes(fastify, options) {
         const { protocol = "https", hostname, path, method } = request.body;
 
         const clean_hostname = cleanUrl(hostname);
-        console.log(clean_hostname)
 
         if (method.toLowerCase() == "options") {
             console.log("optioned")
@@ -186,7 +185,6 @@ async function routes(fastify, options) {
 
 function cleanUrl(url) {
     // This regex matches "http://", "https://", and "www." at the beginning of the string
-    console.log(url)
     const pattern = /^(https?:\/\/)?(www\.)?/;
     return url.replace(pattern, "");
 }

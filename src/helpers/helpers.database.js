@@ -22,8 +22,6 @@ async function fetchDNSHostAndEndpointDetails(urlData) {
   delete rawOas._id;
   delete rawOas.__v;
   
-  console.log(rawOas)
-
   let parsedOas
   try {
     parsedOas = rawOas;

@@ -161,7 +161,6 @@ const learnOas = async ({ seraHost, urlData, response, req }) => {
     response ? generateSchemaFromData(response.data) : null;
 
   let responseHeaders = response ? formatHeadersToOAS(response.headers) : null
-  console.log(req)
   let requestBodySchema =
     req.body && Object.keys(req.body).length !== 0
       ? generateSchemaFromData(req.body)
