@@ -112,47 +112,53 @@ const learnOas = async ({ seraHost, urlData, response, req }) => {
     return target;
   };
 
-  let parameters = [];
+  let parameters = existingOas.paths[path][urlData.method.toLowerCase()].parameters || []
 
   // Add query parameters, if present
   if (req?.query && Object.keys(req?.query).length) {
     Object.keys(req.query).forEach((key) => {
-      parameters.push({
-        name: key,
-        in: "query",
-        required: false, // Adjust based on actual requirement
-        schema: {
-          type: getType(req.query[key]),
-        },
-      });
+      if (parameters.filter((item) => item.name == key && item.in == "query").length == 0) {
+        parameters.push({
+          name: key,
+          in: "query",
+          required: false, // Adjust based on actual requirement
+          schema: {
+            type: getType(req.query[key]),
+          },
+        });
+      }
     });
   }
 
   // Add query parameters, if present
   if (req?.headers && Object.keys(req?.headers).length) {
     Object.keys(req.headers).forEach((key) => {
-      parameters.push({
-        name: key,
-        in: "header",
-        required: false, // Adjust based on actual requirement
-        schema: {
-          type: getType(req.headers[key]),
-        },
-      });
+      if (parameters.filter((item) => item.name == key && item.in == "header").length == 0) {
+        parameters.push({
+          name: key,
+          in: "header",
+          required: false, // Adjust based on actual requirement
+          schema: {
+            type: getType(req.headers[key]),
+          },
+        });
+      }
     });
   }
 
   // Add path parameters, if present
   if (req?.params && Object.keys(req?.params).length) {
     Object.keys(req.params).forEach((key) => {
-      parameters.push({
-        name: key,
-        in: "path",
-        required: false, // Adjust based on actual requirement
-        schema: {
-          type: getType(req.params[key]),
-        },
-      });
+      if (parameters.filter((item) => item.name == key && item.in == "path").length == 0) {
+        parameters.push({
+          name: key,
+          in: "path",
+          required: false, // Adjust based on actual requirement
+          schema: {
+            type: getType(req.params[key]),
+          },
+        });
+      }
     });
   }
 
