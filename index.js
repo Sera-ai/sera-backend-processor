@@ -31,6 +31,6 @@ const app = Fastify();
       app.log.error(err);
       process.exit(1);
     }
-    console.log(`Sequencer Started at ${port}`);
+    console.log(`Processor Started at ${port}`);
   });
 })();

@@ -112,7 +112,10 @@ const learnOas = async ({ seraHost, urlData, response, req }) => {
     return target;
   };
 
-  let parameters = existingOas.paths[path][urlData.method.toLowerCase()].parameters || []
+
+  console.log("parameters")
+
+  let parameters = existingOas?.paths[path][urlData.method.toLowerCase()]?.parameters || []
 
   // Add query parameters, if present
   if (req?.query && Object.keys(req?.query).length) {
@@ -172,6 +175,8 @@ const learnOas = async ({ seraHost, urlData, response, req }) => {
       ? generateSchemaFromData(req.body)
       : null;
 
+  console.log(parameters)
+
   // Prepare the new operation object
   let newOperation = {
     summary: `Auto-generated path for ${path}`,
@@ -213,7 +218,10 @@ const learnOas = async ({ seraHost, urlData, response, req }) => {
     // Merge parameters
     let existingParameters =
       existingOas.paths[path][urlData.method.toLowerCase()].parameters || [];
-    newOperation.parameters = [...existingParameters, ...newOperation.parameters];
+
+    newOperation.parameters = [...existingParameters, ...newOperation.parameters].filter((item, index, self) =>
+      index == self.findIndex((t) => t.name == item.name && t.in == item.in)
+    );;
 
     // Merge responses
     let existingResponses =
