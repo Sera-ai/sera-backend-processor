@@ -173,7 +173,7 @@ async function routes(fastify, options) {
         if (!seraHost) {
             return reply.send({
                 result: false,
-                message: "Something went wrong",
+                message: "No Host Data",
             });
         }
 
