@@ -1,12 +1,10 @@
-const Hosts = require("../models/models.hosts");
-const Endpoints = require("../models/models.endpoints");
-const seraDNS = require("../models/models.dns");
+const { default: hosts_model } = await import("../models/models.hosts.cjs");
 
-async function fetchDNSHostAndEndpointDetails(urlData) {
+export async function fetchDNSHostAndEndpointDetails(urlData) {
 
   const { hostname } = urlData;
   let host = {};
-  host = await Hosts.findOne({ hostname: hostname }).populate(["oas_spec"]);
+  host = await hosts_model.findOne({ hostname: hostname }).populate(["oas_spec"]);
 
   if (!host) {
     console.log(hostname)
@@ -38,8 +36,3 @@ async function fetchDNSHostAndEndpointDetails(urlData) {
   }
 
 }
-
-
-module.exports = {
-  fetchDNSHostAndEndpointDetails,
-};

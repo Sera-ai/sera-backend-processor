@@ -1,14 +1,13 @@
-const fastifyPlugin = require('fastify-plugin');
-const tx_Log = require("../models/models.tx_logs");
-const axios = require("axios");
+import fastifyPlugin from 'fastify-plugin';
+import axios from "axios";
+import { learnOas } from "../helpers/helpers.learning.js";
+import { fetchDNSHostAndEndpointDetails } from "../helpers/helpers.database.js";
 
-const { learnOas } = require("../helpers/helpers.learning");
-const { fetchDNSHostAndEndpointDetails } = require("../helpers/helpers.database");
-
-const sera_dns = require("../models/models.dns");
-const sera_host = require("../models/models.hosts");
-const sera_oas = require("../models/models.oas");
-const sera_settings = require("../models/models.sera_settings");
+const { default: dns_model } = await import("../models/models.dns.cjs");
+const { default: hosts_model } = await import("../models/models.hosts.cjs");
+const { default: oas_model } = await import("../models/models.oas.cjs");
+const { default: sera_settings_model } = await import("../models/models.sera_settings.cjs");
+const { default: tx_logs } = await import("../models/models.tx_logs.cjs");
 
 // Function to obfuscate a string by replacing each character with a random character
 const obfuscateString = (str) => {
@@ -41,7 +40,7 @@ const obfuscateObject = (obj) => {
 
 async function routes(fastify, options) {
     fastify.post("/new", async (request, reply) => {
-        const settingsDoc = await sera_settings.findOne({ user: "admin" });
+        const settingsDoc = await sera_settings_model.findOne({ user: "admin" });
         const settings = settingsDoc ? settingsDoc.toObject() : {};
         // Destructure the settings safely
         const {
@@ -60,7 +59,7 @@ async function routes(fastify, options) {
             }
             // Log the obfuscated request data
             try {
-                const data = new tx_Log(request.body);
+                const data = new tx_logs(request.body);
                 await data.save();
             } catch (error) {
                 console.error('An error occurred while saving the data');
@@ -99,18 +98,18 @@ async function routes(fastify, options) {
                 const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
                 let result = "";
                 for (let i = 0; i < length; i++) {
-                  const randomIndex = Math.floor(Math.random() * chars.length);
-                  result += chars[randomIndex];
+                    const randomIndex = Math.floor(Math.random() * chars.length);
+                    result += chars[randomIndex];
                 }
                 return result;
-              }
+            }
 
             const seraHost = await fetchDNSHostAndEndpointDetails(urlData);
             if (!seraHost.success && seraHost.error === "Host does not exist") {
 
                 const subdo = `${clean_hostname.split(".")[0]}-${generateRandomString(6)}`;
 
-                const dns = new sera_dns({
+                const dns = new dns_model({
                     "sera_config": {
                         "domain": clean_hostname,
                         "expires": null,
@@ -120,7 +119,7 @@ async function routes(fastify, options) {
                 });
 
 
-                const oas = new sera_oas({
+                const oas = new oas_model({
                     openapi: "3.0.1",
                     info: {
                         title: "Minimal API",
@@ -134,9 +133,9 @@ async function routes(fastify, options) {
                 const oas_res = (await oas.save()).toObject();
 
 
-                const host = new sera_host({
+                const host = new hosts_model({
                     oas_spec: oas_res._id,
-                    sera_dns: dns_res._id,
+                    dns_model: dns_res._id,
                     frwd_config: {
                         host: clean_hostname.split(":")[0],
                         port: clean_hostname.split(":")[1] ?? (protocol == "https" ? 443 : 80),
@@ -152,13 +151,13 @@ async function routes(fastify, options) {
                 const host_res = (await host.save()).toObject();
                 let modifyRes = { ...host_res };
                 modifyRes.oas_spec = oas_res;
-                modifyRes.sera_dns = dns_res;
+                modifyRes.dns_model = dns_res;
                 return modifyRes;
                 // build the whole thing!
 
             } else {
                 if (!seraHost.success) {
-                    console.log("seraHost Error",seraHost.error)
+                    console.log("seraHost Error", seraHost.error)
                     return false
                 } else {
                     return seraHost;
@@ -189,4 +188,4 @@ function cleanUrl(url) {
     return url.replace(pattern, "");
 }
 
-module.exports = fastifyPlugin(routes);
+export default fastifyPlugin(routes);

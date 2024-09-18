@@ -1,9 +1,9 @@
-const fastifyPlugin = require('fastify-plugin');
-const fs = require('fs');
-const vm = require('vm')
-const path = require('path');
-const https = require('https');
-const axios = require('axios');
+import fastifyPlugin from 'fastify-plugin';
+import fs from 'fs';
+import vm from 'vm';
+import path from 'path';
+import https from 'https';
+import axios from 'axios';
 
 async function routes(fastify, options) {
     fastify.post("/:builderId/:eventId", async (request, reply) => {
@@ -44,4 +44,4 @@ async function routes(fastify, options) {
 }
 
 
-module.exports = fastifyPlugin(routes);
+export default fastifyPlugin(routes);
