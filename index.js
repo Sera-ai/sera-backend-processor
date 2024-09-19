@@ -2,9 +2,10 @@ import 'dotenv/config';
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import fastifyFormbody from "@fastify/formbody";
+import fastifyExpress from '@fastify/express';
+
 import buildRoutes from "./src/routes/routes.events.js";
 import analyticsRoutes from "./src/routes/routes.analytics.js";
-import fastifyExpress from '@fastify/express';
 
 const app = Fastify();
 
